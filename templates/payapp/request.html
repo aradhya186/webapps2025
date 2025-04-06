@@ -77,7 +77,7 @@ Request Points
                                         <span class="badge bg-secondary">{{ i.transfer_status }}</span>
                                         {% endif %}
                                     </td>
-                                    <td>{{ i.date_time|date:"M d, Y" }}</td>
+                                    <td>{{ i.date_time }}</td>
                                     <td>
                                         {% if i.transfer_status == 'Pending' and i.enter_your_username != user %}
                                         <div class="btn-group btn-group-sm">

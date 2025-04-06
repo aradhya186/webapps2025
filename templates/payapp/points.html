@@ -71,7 +71,7 @@ Account Balance & Transactions
                                     {% if i.enter_destination_username == user.username %}+{% else %}-{% endif %}
                                     {{ i.enter_points_to_transfer|floatformat:2 }} {{ i.points_type }}
                                 </td>
-                                <td>{{ i.date_time|date:"M d, Y H:i" }}</td>
+                                <td>{{ i.date_time }}</td>
                             </tr>
                             {% endfor %}
                             </tbody>
