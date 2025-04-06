@@ -1,10 +1,120 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'register/base.html' %}
+{% load static %}
+
+{% block title %}
+Request Points
+{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="container-fluid py-4" style="min-height: 100vh; background-color: #f8f9fa;">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-lg-12">
+                <a class="btn btn-outline-secondary mb-3" onclick="goBack()">
+                    <i class="fas fa-arrow-left me-2"></i>Back
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Request Form Card -->
+            <div class="col-lg-5 mb-4">
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="fas fa-paper-plane me-2"></i>Request Points</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="post" class="form-group">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <button type="submit" class="btn btn-primary w-100 mt-4">
+                                <i class="fas fa-exchange-alt me-2"></i>Transfer Points
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions History Card -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="fas fa-history me-2"></i>Points Request History</h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-light">
+                                <tr>
+                                    <th>Sender</th>
+                                    <th>Receiver</th>
+                                    <th>Points</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for i in point_detail %}
+                                <tr>
+                                    <td>{{ i.enter_your_username }}</td>
+                                    <td>{{ i.enter_destination_username }}</td>
+                                    <td>
+                                        <span class="fw-bold">{{ i.enter_points_to_transfer|floatformat:2 }}</span>
+                                        <span class="text-muted">{{ i.points_type }}</span>
+                                    </td>
+                                    <td>
+                                        {% if i.transfer_status == 'Pending' %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        {% elif i.transfer_status == 'Completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                        {% elif i.transfer_status == 'Rejected' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ i.transfer_status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ i.date_time|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if i.transfer_status == 'Pending' and i.enter_your_username != user %}
+                                        <div class="btn-group btn-group-sm">
+                                            <form method="post" action="{% url 'accept_request' i.pk %}" class="d-inline me-1">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    <i class="fas fa-check me-1"></i>Accept
+                                                </button>
+                                            </form>
+                                            <form method="post" action="{% url 'reject_request' i.pk %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-times me-1"></i>Reject
+                                                </button>
+                                            </form>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">No transaction records found</td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
+{% endblock %}

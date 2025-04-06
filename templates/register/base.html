@@ -1,10 +1,35 @@
+{% load static %}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <!DOCTYPE html>
 <html lang="en">
+{% load crispy_forms_tags %}
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <title>{% block title %}Page not found{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'messages.css' %}">
 </head>
+
 <body>
-$END$
+<!-- Messages ---------->
+{% for message in messages %}
+            <div class="alert {{message.tags}}">
+  <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+  <b>{{ message.tags }}! </b>{{ message }}
+</div>
+{% endfor %}
+<style>
+    html, body {
+        background-color: #E7F7F6; /* Background color for the entire page */
+        height: 100%;
+    }
+</style>
+    <div class="container py-5">
+	{% block content %}
+        page not found
+	{% endblock %}
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 </body>
 </html>
