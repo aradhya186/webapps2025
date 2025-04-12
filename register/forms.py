@@ -42,5 +42,5 @@ class RegisterForm(UserCreationForm):
         currency_type = self.cleaned_data['money_type']
         default_currency_type = "GB Pounds"
         money = self.conversion(default_currency_type, currency_type, 1000)
-        money.objects.create(name=instance, money=money, money_type=currency_type)
+        Money.objects.create(name=instance, money=money, money_type=currency_type)
         return instance

@@ -31,7 +31,7 @@ Request Money
                             {% csrf_token %}
                             {{ form|crispy }}
                             <button type="submit" class="btn btn-primary w-100 mt-4">
-                                <i class="fas fa-exchange-alt me-2"></i>Transfer Money
+                                <i class="fas fa-exchange-alt me-2"></i>Request Money
                             </button>
                         </form>
                     </div>
@@ -58,7 +58,7 @@ Request Money
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for i in point_detail %}
+                                {% for i in money_detail %}
                                 <tr>
                                     <td>{{ i.enter_your_username }}</td>
                                     <td>{{ i.enter_destination_username }}</td>

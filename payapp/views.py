@@ -9,13 +9,18 @@ from django.contrib import messages
 from django.views.decorators.csrf import requires_csrf_token
 from register.forms import RegisterForm
 from .utils import get_current_timestamp
+from datetime import datetime
+
+def get_current_timestamp():
+    return datetime.now()
 
 
 # Create your views here.
 @login_required(login_url='/')
 def dashboard(request):
-    default_src_username = request.user.username if request.user.is_authenticated else None
-    requests =  MoneyRequest.objects.select_related().filter(Q(enter_destination_username= default_src_username) & Q(transfer_status__in=['Pending']))
+    #default_src_username = request.user.username if request.user.is_authenticated else None
+    user = request.user
+    requests =  MoneyRequest.objects.select_related().filter(Q(enter_destination_username= user) & Q(transfer_status__in=['Pending']))
     if len(requests) > 0:
         messages.info(request, "You have "+ str(len(requests)) + " money requests")
     return render(request, "payapp/dashboard.html")
@@ -24,31 +29,34 @@ def dashboard(request):
 @login_required(login_url='/')
 def request_money(request):
     default_src_username = request.user.username if request.user.is_authenticated else None
+    user = request.user
     if request.method == 'POST':
         form = MoneyRequestForm(request.POST)
         if form.is_valid():
             if form.cleaned_data["enter_destination_username"] == default_src_username:
-                messages.error(request, "Can not request point to the same account.")
+                messages.error(request, "Can not request money to the same account.")
                 return redirect('request_money')
             current_timestamp = get_current_timestamp()
             form.instance.date_time = current_timestamp
-            form.instance.enter_your_username = default_src_username  # Set the value before saving
+            form.instance.enter_your_username = user  # Set the value before saving
             user_money = Money.objects.select_related().get(name__username=default_src_username)
             form.instance.money_type = user_money.money_type
             form.save()
             messages.success(request, "Successfully sent request for money.")
             return redirect('request_money')
     form = MoneyRequestForm()
-    form = MoneyTransferForm(initial={'enter_your_username': default_src_username})
-    transfer_detail = MoneyRequest.objects.select_related().filter((Q(enter_your_username= default_src_username)) | Q(enter_destination_username= default_src_username)).order_by('-id')  # Order by most recent first
-    return render(request, "payapp/request.html", {"form": form, "point_detail" : transfer_detail, "user" : default_src_username})
+    form = MoneyTransferForm(initial={'enter_your_username': user})
+    user = request.user
+    transfer_detail = MoneyRequest.objects.select_related().filter((Q(enter_your_username= user)) | Q(enter_destination_username= user)).order_by('-id')  # Order by most recent first
+    return render(request, "payapp/request.html", {"form": form, "money_detail" : transfer_detail, "user" : user})
 
 
 @login_required(login_url='/')
 def money(request):
     username = request.user.username
-    src_money = Money.objects.select_related().get(name__username=username)
-    transfer_detail = MoneyTransfer.objects.select_related().filter(Q(enter_your_username=username) | Q(enter_destination_username= username)).order_by('-id')  # Order by most recent first
+    user = request.user
+    src_money = Money.objects.select_related().get(name=user)
+    transfer_detail = MoneyTransfer.objects.select_related().filter(Q(enter_your_username=user) | Q(enter_destination_username= user)).order_by('-id')  # Order by most recent first
     return render(request, "payapp/money.html", {"src_money": src_money, "money_detail" : transfer_detail})
 
 
@@ -60,6 +68,8 @@ def money_transfer(request):
 
         if form.is_valid():
             src_username = request.user.username
+            user = request.user
+
             dst_username = form.cleaned_data["enter_destination_username"]
             money_to_transfer = form.cleaned_data["enter_money_to_transfer"]
             current_timestamp = get_current_timestamp()
@@ -89,7 +99,7 @@ def money_transfer(request):
                     dst_money.save()
                     # Create and save a MoneyTransfer instance
                     MoneyTransfer.objects.create(
-                        enter_your_username=src_username,
+                        enter_your_username=user,
                         enter_destination_username=dst_username,
                         enter_money_to_transfer=money_to_transfer,
                         money_type = src_currency_type,
